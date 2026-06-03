@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,9 @@ import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
@@ -37,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +60,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nsel.testcompose.ui.theme.TestComposeTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +85,8 @@ fun LoginScreen(){
     var uName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -161,7 +169,15 @@ fun LoginScreen(){
 
             Button(
                 onClick = {
-                    isLoading = true
+                    if(uName.isEmpty() || password.isEmpty() || isUnameError){
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Por favor, verifica tus datos de inicio de sesión."
+                            )
+                        }
+                    }else{
+                        isLoading = true
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = 30.dp)
@@ -183,6 +199,12 @@ fun LoginScreen(){
             }
 
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier =  Modifier.align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp)
+        )
     }
 }
 
