@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="backp">#FFFFFF</color>
+    <color name="text">#8D8D8D</color>
+    <color name="backs">#F6F6F6</color>
+    <color name="textButton">#FFF</color>
+    <color name="button">#32A522</color>
+    <color name="button_celeste">#00ACEC</color>
+    <color name="card_profile">#F2F2F2</color>
+    <color name="button_turno">#266F96</color>
+    <color name="RojoSolido">#FF0000</color>
+    <color name="card_recycler">#959BA4</color>
+    <color name="backSheet">#FFFFFF</color>
+
+</resources>
