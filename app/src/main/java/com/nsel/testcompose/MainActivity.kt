@@ -3,6 +3,7 @@ package com.nsel.testcompose
 import android.content.res.Configuration
 import android.graphics.Paint
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.painterResource
@@ -72,6 +75,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LoginScreen(){
+    var isUnameError by remember { mutableStateOf(false) }
     var uName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -107,7 +111,16 @@ fun LoginScreen(){
 
             TextField(
                 value = uName,
-                onValueChange = { uName = it},
+                onValueChange = {
+                    uName = it
+                    isUnameError = uName.length > 6
+                },
+                isError = isUnameError,
+                supportingText = {
+                    if(isUnameError){
+                        Text(text = "El nombre de usuario no puede exceder los 6 caracteres", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    }
+                },
                 placeholder = { Text("Usuario", color = MaterialTheme.colorScheme.onSurface, fontSize = 15.sp) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
@@ -120,7 +133,7 @@ fun LoginScreen(){
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = 30.dp)
-                    .height(56.dp)
+                    .heightIn(min = 56.dp)
             )
 
             Spacer(modifier = Modifier.height(22.dp))
@@ -140,8 +153,8 @@ fun LoginScreen(){
                 ),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth()
-                    .height(56.dp)
                     .padding(horizontal = 30.dp)
+                    .heightIn(min = 56.dp)
             )
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -151,8 +164,8 @@ fun LoginScreen(){
                     isLoading = true
                 },
                 modifier = Modifier.fillMaxWidth()
-                    .height(50.dp)
-                    .padding(horizontal = 30.dp),
+                    .padding(horizontal = 30.dp)
+                    .heightIn(min = 48.dp),
                 enabled = !isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
@@ -162,7 +175,7 @@ fun LoginScreen(){
                 if(isLoading){
                     CircularWavyProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(36.dp)
                     )
                 }else{
                     Text(text = "Iniciar Sesión", color = MaterialTheme.colorScheme.onPrimary, fontSize = 17.sp)
