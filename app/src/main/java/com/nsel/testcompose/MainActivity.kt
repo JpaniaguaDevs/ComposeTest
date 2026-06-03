@@ -202,8 +202,18 @@ fun LoginScreen(){
 
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier =  Modifier.align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp)
+            modifier =  Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp),
+            snackbar = { snackbarData ->
+                Snackbar(
+                    snackbarData = snackbarData,
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    shape = RoundedCornerShape(12.dp),
+                    actionColor =  MaterialTheme.colorScheme.primary
+                )
+            }
         )
     }
 }
