@@ -49,18 +49,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nsel.testcompose.R
+import com.nsel.testcompose.presentation.viewModel.MainActivityViewModel
 import com.nsel.testcompose.ui.theme.TestComposeTheme
 import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val viewModel: MainActivityViewModel = viewModel()
+
             TestComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
                     Box(modifier = Modifier.fillMaxSize()) {
-                        LoginScreen()
+                        LoginScreen(viewModel)
                     }
                 }
             }
@@ -70,13 +76,16 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun LoginScreen(){
-    var isUnameError by remember { mutableStateOf(false) }
-    var uName by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
+fun LoginScreen(viewModel: MainActivityViewModel){
+    val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(state.showSnackbar){
+        if(state.showSnackbar){
+            snackbarHostState.showSnackbar(message = state.snackbarMessage)
+            viewModel.onSnackbarDismiss()
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -108,14 +117,11 @@ fun LoginScreen(){
             )
 
             TextField(
-                value = uName,
-                onValueChange = {
-                    uName = it
-                    isUnameError = uName.length > 6
-                },
-                isError = isUnameError,
+                value = state.uName,
+                onValueChange = { viewModel.onUsernameChange(it) },
+                isError = state.isUnameError,
                 supportingText = {
-                    if(isUnameError){
+                    if(state.isUnameError){
                         Text(text = "El nombre de usuario no puede exceder los 6 caracteres", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
                     }
                 },
@@ -137,8 +143,8 @@ fun LoginScreen(){
             Spacer(modifier = Modifier.height(22.dp))
 
             TextField(
-                value = password,
-                onValueChange = { password = it},
+                value = state.password,
+                onValueChange = {viewModel.onPasswordChange(it)},
                 placeholder = { Text("Contraseña", color= MaterialTheme.colorScheme.onSurface, fontSize = 15.sp)},
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
@@ -158,27 +164,17 @@ fun LoginScreen(){
             Spacer(modifier = Modifier.height(30.dp))
 
             Button(
-                onClick = {
-                    if(uName.isEmpty() || password.isEmpty() || isUnameError){
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Por favor, verifica tus datos de inicio de sesión."
-                            )
-                        }
-                    }else{
-                        isLoading = true
-                    }
-                },
+                onClick = {viewModel.onLoginClick()},
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = 30.dp)
                     .heightIn(min = 48.dp),
-                enabled = !isLoading,
+                enabled = !state.isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                if(isLoading){
+                if(state.isLoading){
                     CircularWavyProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(36.dp)
@@ -225,7 +221,7 @@ fun FullScreenPreview(){
     TestComposeTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding)) {
-                LoginScreen()
+                LoginScreen(viewModel = MainActivityViewModel())
             }
         }
     }
