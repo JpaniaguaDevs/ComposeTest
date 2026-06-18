@@ -1,4 +1,4 @@
-package com.nsel.testcompose.presentation.viewModel
+package com.nsel.testcompose.presentation.viewModel.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

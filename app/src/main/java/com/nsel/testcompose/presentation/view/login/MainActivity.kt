@@ -1,4 +1,4 @@
-package com.nsel.testcompose.presentation.view
+package com.nsel.testcompose.presentation.view.login
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -32,10 +32,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -49,9 +46,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nsel.testcompose.R
-import com.nsel.testcompose.presentation.viewModel.MainActivityViewModel
+import com.nsel.testcompose.presentation.viewModel.login.MainActivityViewModel
 import com.nsel.testcompose.ui.theme.TestComposeTheme
-import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
