@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
             TestComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
                     Box(modifier = Modifier.fillMaxSize()) {
-                        LoginScreen(viewModel)
+                        LoginScreen()
                     }
                 }
             }
@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun LoginScreen(viewModel: MainActivityViewModel){
+fun LoginScreen(viewModel: MainActivityViewModel = viewModel()){
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -221,7 +221,7 @@ fun FullScreenPreview(){
     TestComposeTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding)) {
-                LoginScreen(viewModel = MainActivityViewModel())
+                LoginScreen()
             }
         }
     }
