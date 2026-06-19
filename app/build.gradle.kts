@@ -47,7 +47,7 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.13.0")
 
     //Navegacion
-    implementation("androidx.navigation:navigation-compose:2.9.8")
+    //implementation("androidx.navigation:navigation-compose:2.9.8")
 
     //MaterialIcon
     implementation("androidx.compose.material:material-icons-extended:1.5.0")
