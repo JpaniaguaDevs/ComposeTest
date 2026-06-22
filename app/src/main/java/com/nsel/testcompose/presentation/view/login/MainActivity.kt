@@ -51,6 +51,11 @@ import com.nsel.testcompose.ui.theme.TestComposeTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.nsel.testcompose.presentation.navigation.AppRoute
+import com.nsel.testcompose.presentation.view.main.MainHostScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,8 +63,31 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: MainActivityViewModel = viewModel()
+            val globalNavController = rememberNavController()
 
             TestComposeTheme {
+                NavHost(
+                    navController = globalNavController,
+                    startDestination = AppRoute.Login.route
+                ){
+                    composable(AppRoute.Login.route){
+                        LoginScreen(
+                            viewModel = viewModel,
+                            onLoginSuccess = {
+                                globalNavController.navigate(AppRoute.MainContent.route){
+                                    popUpTo(AppRoute.Login.route){
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                        )
+                    }
+
+                    composable(AppRoute.MainContent.route){
+                        MainHostScreen()
+                    }
+                }
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
                     Box(modifier = Modifier.fillMaxSize()) {
                         LoginScreen()
@@ -72,9 +100,15 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun LoginScreen(viewModel: MainActivityViewModel = viewModel()){
+fun LoginScreen(viewModel: MainActivityViewModel = viewModel(), onLoginSuccess: () -> Unit = {}) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.isLoginSuccess) {
+        if(state.isLoginSuccess){
+            onLoginSuccess()
+        }
+    }
 
     LaunchedEffect(state.showSnackbar){
         if(state.showSnackbar){
@@ -83,121 +117,129 @@ fun LoginScreen(viewModel: MainActivityViewModel = viewModel()){
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ){
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = {
+            // El Scaffold pre-calcula exactamente dónde poner esto (abajo, centrado, sin estorbar)
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier =  Modifier.padding(bottom = 16.dp),
+                snackbar = { snackbarData ->
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        shape = RoundedCornerShape(12.dp),
+                        actionColor =  MaterialTheme.colorScheme.primary
+                    )
+                }
+            )
+        }
+    ) { innerPadding ->
 
-        Image(
-            painter = painterResource(id = R.drawable.fondo_ala),
-            contentDescription = "Background Image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-
-        Column(
-            modifier = Modifier.align(Alignment.Center)
-                .padding(horizontal = 30.dp)
-                .fillMaxWidth()
-                .alpha(0.8f)
-                .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
-                .padding(vertical = 30.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ){
 
             Image(
-                painter = painterResource(id= R.drawable.logo_isa),
-                contentDescription = "Logo",
-                modifier = Modifier.fillMaxWidth()
-                    .height(100.dp)
-                    .padding(bottom = 20.dp)
+                painter = painterResource(id = R.drawable.fondo_ala),
+                contentDescription = "Background Image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
 
-            TextField(
-                value = state.uName,
-                onValueChange = { viewModel.onUsernameChange(it) },
-                isError = state.isUnameError,
-                supportingText = {
-                    if(state.isUnameError){
-                        Text(text = "El nombre de usuario no puede exceder los 6 caracteres", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                    }
-                },
-                placeholder = { Text("Usuario", color = MaterialTheme.colorScheme.onSurface, fontSize = 15.sp) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
                     .padding(horizontal = 30.dp)
-                    .heightIn(min = 56.dp)
-            )
-
-            Spacer(modifier = Modifier.height(22.dp))
-
-            TextField(
-                value = state.password,
-                onValueChange = {viewModel.onPasswordChange(it)},
-                placeholder = { Text("Contraseña", color= MaterialTheme.colorScheme.onSurface, fontSize = 15.sp)},
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = 30.dp)
-                    .heightIn(min = 56.dp)
-            )
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            Button(
-                onClick = {viewModel.onLoginClick()},
-                modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = 30.dp)
-                    .heightIn(min = 48.dp),
-                enabled = !state.isLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                shape = RoundedCornerShape(8.dp)
+                    .fillMaxWidth()
+                    .alpha(0.8f)
+                    .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
+                    .padding(vertical = 30.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if(state.isLoading){
-                    CircularWavyProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(36.dp)
-                    )
-                }else{
-                    Text(text = "Iniciar Sesión", color = MaterialTheme.colorScheme.onPrimary, fontSize = 17.sp)
+
+                Image(
+                    painter = painterResource(id= R.drawable.logo_isa),
+                    contentDescription = "Logo",
+                    modifier = Modifier.fillMaxWidth()
+                        .height(100.dp)
+                        .padding(bottom = 20.dp)
+                )
+
+                TextField(
+                    value = state.uName,
+                    onValueChange = { viewModel.onUsernameChange(it) },
+                    isError = state.isUnameError,
+                    supportingText = {
+                        if(state.isUnameError){
+                            Text(text = "El nombre de usuario no puede exceder los 6 caracteres", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                        }
+                    },
+                    placeholder = { Text("Usuario", color = MaterialTheme.colorScheme.onSurface, fontSize = 15.sp) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = 30.dp)
+                        .heightIn(min = 56.dp)
+                )
+
+                Spacer(modifier = Modifier.height(22.dp))
+
+                TextField(
+                    value = state.password,
+                    onValueChange = {viewModel.onPasswordChange(it)},
+                    placeholder = { Text("Contraseña", color= MaterialTheme.colorScheme.onSurface, fontSize = 15.sp)},
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = 30.dp)
+                        .heightIn(min = 56.dp)
+                )
+
+                Spacer(modifier = Modifier.height(30.dp))
+
+                Button(
+                    onClick = {viewModel.onLoginClick()},
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = 30.dp)
+                        .heightIn(min = 48.dp),
+                    enabled = !state.isLoading,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    if(state.isLoading){
+                        CircularWavyProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(36.dp)
+                        )
+                    }else{
+                        Text(text = "Iniciar Sesión", color = MaterialTheme.colorScheme.onPrimary, fontSize = 17.sp)
+                    }
                 }
             }
-
         }
-
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier =  Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp),
-            snackbar = { snackbarData ->
-                Snackbar(
-                    snackbarData = snackbarData,
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    shape = RoundedCornerShape(12.dp),
-                    actionColor =  MaterialTheme.colorScheme.primary
-                )
-            }
-        )
     }
+
 }
 
 

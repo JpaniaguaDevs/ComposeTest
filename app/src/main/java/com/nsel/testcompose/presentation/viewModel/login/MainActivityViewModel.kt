@@ -14,7 +14,8 @@ data class LoginState(
     val password : String = "",
     val isLoading: Boolean = false,
     val showSnackbar: Boolean = false,
-    val snackbarMessage: String = ""
+    val snackbarMessage: String = "",
+    val isLoginSuccess: Boolean = false
 ){
     val isUnameError: Boolean get() = uName.length>6
 }
@@ -57,7 +58,7 @@ class MainActivityViewModel: ViewModel() {
                     )
                 }
             }else{
-                _uiState.update{it.copy(isLoading = false)}
+                _uiState.update{it.copy(isLoading = false, isLoginSuccess = true)}
             }
         }
     }
