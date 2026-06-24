@@ -138,9 +138,7 @@ fun LoginScreen(viewModel: MainActivityViewModel = viewModel(), onLoginSuccess: 
     ) { innerPadding ->
 
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ){
 
             Image(
@@ -153,6 +151,7 @@ fun LoginScreen(viewModel: MainActivityViewModel = viewModel(), onLoginSuccess: 
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
+                    .padding(innerPadding)
                     .padding(horizontal = 30.dp)
                     .fillMaxWidth()
                     .alpha(0.8f)
