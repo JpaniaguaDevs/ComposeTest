@@ -90,12 +90,6 @@ class MainActivity : ComponentActivity() {
                         MainHostScreen()
                     }
                 }
-
-                Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        LoginScreen()
-                    }
-                }
             }
         }
     }
