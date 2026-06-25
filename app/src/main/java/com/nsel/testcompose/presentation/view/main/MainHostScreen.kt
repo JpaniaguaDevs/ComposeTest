@@ -3,6 +3,8 @@ package com.nsel.testcompose.presentation.view.main
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -10,6 +12,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.nsel.testcompose.presentation.navigation.BottomNavItem
 import com.nsel.testcompose.ui.theme.TestComposeTheme
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainHostScreen(){
     val navController = rememberNavController()
@@ -32,14 +37,26 @@ fun MainHostScreen(){
         BottomNavItem.Settings
     )
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val currentTitle = bottomNavItem.find { it.route == currentRoute }?.title ?: "Test Compose"
+
     Scaffold(
+
+        topBar = {
+            TopAppBar(
+                title= {Text(currentTitle) },
+                colors= TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+        },
+
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             ) {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route
-
                 bottomNavItem.forEach { item ->
                     NavigationBarItem(
                         icon = { Icon(imageVector =  item.icon, contentDescription = item.title) },
@@ -47,7 +64,7 @@ fun MainHostScreen(){
                         selected = currentRoute == item.route,
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            indicatorColor = MaterialTheme.colorScheme.surface,
                             selectedTextColor = MaterialTheme.colorScheme.primary,
                             unselectedIconColor = MaterialTheme.colorScheme.onSurface,
                             unselectedTextColor = MaterialTheme.colorScheme.onSurface
