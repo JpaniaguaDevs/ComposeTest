@@ -1,6 +1,5 @@
 package com.nsel.testcompose.presentation.view.main
 
-import android.R
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
