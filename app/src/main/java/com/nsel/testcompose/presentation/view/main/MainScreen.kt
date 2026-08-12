@@ -13,27 +13,36 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nsel.testcompose.ui.theme.TestComposeTheme
+import java.util.Locale
 
 
 data class Client(val name: String, val phone: String)
-data class Invoice(val detail: String, val amount: Double)
+data class Invoice(val detail: String, val amount: Double, val isPaid: Boolean)
 
 @Composable
 fun HomeScreen(){
@@ -47,7 +56,7 @@ fun HomeScreen(){
     )
 
     val invoices = List(15) { index ->
-        Invoice("Factura de servicios #${10000 + index}", (index + 1) * 100.0)
+        Invoice("Factura de servicios #${10000 + index}", (index + 1) * 100.0, index % 3 != 0)
     }
 
     Column(
@@ -66,9 +75,7 @@ fun HomeScreen(){
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(clients) { client ->
-                ClientItem(client)
-            }
+            items(clients) { client -> ClientCard(client) }
         }
 
         Text(
@@ -83,62 +90,140 @@ fun HomeScreen(){
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(invoices) { invoice ->
-                InvoiceItem(invoice)
-            }
+            items(invoices) { invoice -> InvoiceCard(invoice) }
         }
     }
 
 }
 
 @Composable
-fun ClientItem(client: Client) {
+fun ClientCard(client: Client) {
+    val initial = client.name.firstOrNull()?.toString() ?: "?"
+
     Card(
         modifier = Modifier.width(140.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
-        ){
+        ConstraintLayout(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp)
+        ) {
+            // 1. Creamos las referencias (Equivalente a android:id="@+id/...")
+            val (avatar, nameText, phoneText) = createRefs()
+
+            // 2. Avatar centrado en la parte superior
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                    .constrainAs(avatar) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = initial,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+
+            // 3. Nombre (Debajo del avatar)
             Text(
                 text = client.name,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.constrainAs(nameText) {
+                    // Equivalente a app:layout_constraintTop_toBottomOf="@id/avatar"
+                    top.linkTo(avatar.bottom, margin = 8.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
             )
-            Spacer(modifier = Modifier.height(4.dp))
+
+            // 4. Teléfono (Debajo del nombre)
             Text(
                 text = client.phone,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.constrainAs(phoneText) {
+                    // Equivalente a app:layout_constraintTop_toBottomOf="@id/nameText"
+                    top.linkTo(nameText.bottom, margin = 2.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
             )
         }
     }
 }
 
 @Composable
-fun InvoiceItem(invoice: Invoice) {
+fun InvoiceCard(invoice: Invoice) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.padding(14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = invoice.detail,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                StatusBadge(isPaid = invoice.isPaid)
+            }
+
             Text(
-                text = invoice.detail,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Text(
-                text = "$${invoice.amount}",
+                text = String.format(Locale.US, "$%.2f", invoice.amount),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }
 }
+
+@Composable
+fun StatusBadge(isPaid: Boolean) {
+    val bg = if (isPaid) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
+    val textColor = if (isPaid) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
+
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(bg)
+            .padding(horizontal = 10.dp, vertical = 2.dp)
+    ) {
+        Text(
+            text = if (isPaid) "Pagado" else "Pendiente",
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = textColor
+        )
+    }
+}
+
 
 @Preview(
     name = "Home Modo Claro",
