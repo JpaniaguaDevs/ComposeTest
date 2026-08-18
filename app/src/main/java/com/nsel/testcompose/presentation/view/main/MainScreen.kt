@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.Dimension
 import com.nsel.testcompose.ui.theme.TestComposeTheme
 import java.util.Locale
 
@@ -90,7 +91,7 @@ fun HomeScreen(){
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(invoices) { invoice -> InvoiceCard(invoice) }
+            items(invoices) { invoice -> invoiceCardConstraint(invoice) }
         }
     }
 
@@ -168,49 +169,62 @@ fun ClientCard(client: Client) {
 }
 
 @Composable
-fun InvoiceCard(invoice: Invoice) {
+fun invoiceCardConstraint(invoice: Invoice){
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ){
+        ConstraintLayout(
+            modifier = Modifier.fillMaxWidth().padding(14.dp)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = invoice.detail,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                StatusBadge(isPaid = invoice.isPaid)
-            }
+            val (detailText, statusBadge, amountText) = createRefs()
+
+            Text(
+                text = invoice.detail,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.constrainAs(detailText) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(amountText.start, margin = 8.dp)
+                    width = Dimension.fillToConstraints
+                }
+            )
+
+            StatusBadge(
+                isPaid = invoice.isPaid,
+                modifier = Modifier.constrainAs(statusBadge) {
+                    top.linkTo(detailText.bottom, margin = 6.dp)
+                    start.linkTo(parent.start)
+                    bottom.linkTo(parent.bottom)
+                }
+            )
 
             Text(
                 text = String.format(Locale.US, "$%.2f", invoice.amount),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.constrainAs(amountText) {
+                    end.linkTo(parent.end)
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                }
             )
         }
     }
 }
 
 @Composable
-fun StatusBadge(isPaid: Boolean) {
+fun StatusBadge(isPaid: Boolean, modifier: Modifier = Modifier) {
     val bg = if (isPaid) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
     val textColor = if (isPaid) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(50))
             .background(bg)
             .padding(horizontal = 10.dp, vertical = 2.dp)
