@@ -42,6 +42,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nsel.testcompose.presentation.navigation.BottomNavItem
+import com.nsel.testcompose.presentation.view.home.HomeScreen
+import com.nsel.testcompose.presentation.view.profile.ProfileScreen
+import com.nsel.testcompose.presentation.view.settings.SettingsScreen
 import com.nsel.testcompose.ui.theme.TestComposeTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -71,7 +74,7 @@ fun MainHostScreen(){
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                    .padding(horizontal = 10.dp, vertical = 10.dp),
                 contentAlignment = Alignment.Center,
             ){
                 Surface(
