@@ -54,6 +54,7 @@ import com.nsel.testcompose.ui.theme.TestComposeTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.testTag
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -187,7 +188,8 @@ fun LoginScreen(viewModel: MainActivityViewModel = viewModel(), onLoginSuccess: 
                         unfocusedIndicatorColor = Color.Transparent
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.testTag("username_input")
+                        .fillMaxWidth()
                         .padding(horizontal = 30.dp)
                         .heightIn(min = 56.dp)
                 )
@@ -208,7 +210,8 @@ fun LoginScreen(viewModel: MainActivityViewModel = viewModel(), onLoginSuccess: 
                         unfocusedIndicatorColor = Color.Transparent
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.testTag("password_input")
+                        .fillMaxWidth()
                         .padding(horizontal = 30.dp)
                         .heightIn(min = 56.dp)
                 )
@@ -217,7 +220,8 @@ fun LoginScreen(viewModel: MainActivityViewModel = viewModel(), onLoginSuccess: 
 
                 Button(
                     onClick = {viewModel.onLoginClick()},
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.testTag("login_button")
+                        .fillMaxWidth()
                         .padding(horizontal = 30.dp)
                         .heightIn(min = 48.dp),
                     enabled = !state.isLoading,
