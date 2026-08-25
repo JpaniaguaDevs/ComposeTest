@@ -27,7 +27,6 @@ class LoginToHomeJourneyTest {
         composeTestRule.onNodeWithTag("login_button")
             .performClick()
 
-        // 4. Esperar a que la corrutina termine y navegue
         composeTestRule.waitUntil(timeoutMillis = 5000) {
             composeTestRule
                 .onAllNodesWithText("Últimos Clientes")
@@ -35,7 +34,6 @@ class LoginToHomeJourneyTest {
                 .isNotEmpty()
         }
 
-        // 5. Asertar que estamos en Home
         composeTestRule.onNodeWithText("Últimos Clientes")
             .assertIsDisplayed()
     }
