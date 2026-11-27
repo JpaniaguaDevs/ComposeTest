@@ -1,7 +1,9 @@
 package com.nsel.testcompose.presentation.view.home
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -107,35 +109,11 @@ fun HomeScreen() {
 
         // 2. Encabezado de Clientes
         item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Últimos Clientes",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Surface(
-                        shape = RoundedCornerShape(50),
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    ) {
-                        Text(
-                            text = "${clients.size}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                        )
-                    }
-                }
-            }
+            SectionHeader(
+                title = "Últimos Clientes",
+                count = clients.size,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 10.dp)
+            )
         }
 
         // 3. Carrusel de Clientes
@@ -157,35 +135,9 @@ fun HomeScreen() {
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "Últimas Facturas",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Surface(
-                            shape = RoundedCornerShape(50),
-                            color = MaterialTheme.colorScheme.surfaceVariant
-                        ) {
-                            Text(
-                                text = "${filteredInvoices.size}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                            )
-                        }
-                    }
-                }
+                SectionHeader(title = "Últimas Facturas", count = filteredInvoices.size)
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -218,13 +170,41 @@ fun HomeScreen() {
         // 5. Lista de Facturas
         items(filteredInvoices) { invoice ->
             Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                invoiceCardConstraint(invoice = invoice)
+                InvoiceCard(invoice = invoice)
             }
         }
 
         // Espaciador inferior para no solapar la barra de navegación
         item {
             Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+fun SectionHeader(title: String, count: Int, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Surface(
+            shape = RoundedCornerShape(50),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+        ) {
+            Text(
+                text = "$count",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+            )
         }
     }
 }
@@ -243,15 +223,16 @@ fun SummaryMetricsCard(invoices: List<Invoice>) {
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    Brush.verticalGradient(
+                    Brush.linearGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.28f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
                             Color.Transparent
                         )
                     )
@@ -320,7 +301,7 @@ fun SummaryMetricsCard(invoices: List<Invoice>) {
                 Surface(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
                 ) {
                     Row(
                         modifier = Modifier.padding(12.dp),
@@ -361,7 +342,7 @@ fun SummaryMetricsCard(invoices: List<Invoice>) {
                 Surface(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.10f)
                 ) {
                     Row(
                         modifier = Modifier.padding(12.dp),
@@ -407,24 +388,25 @@ fun ClientCard(client: Client) {
     val initial = client.name.firstOrNull()?.toString()?.uppercase(Locale.ROOT) ?: "?"
 
     Card(
-        modifier = Modifier.width(148.dp),
+        modifier = Modifier.width(156.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp)
+                .padding(16.dp)
         ) {
             val (avatar, nameText, phoneRow) = createRefs()
 
             // Avatar con gradiente y tipografía prominente
             Box(
                 modifier = Modifier
-                    .size(52.dp)
+                    .size(56.dp)
                     .clip(CircleShape)
                     .background(
                         Brush.linearGradient(
@@ -434,6 +416,7 @@ fun ClientCard(client: Client) {
                             )
                         )
                     )
+                    .border(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f), CircleShape)
                     .constrainAs(avatar) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
@@ -492,13 +475,10 @@ fun ClientCard(client: Client) {
 }
 
 @Composable
-fun invoiceCardConstraint(invoice: Invoice) {
-    val statusBg = if (invoice.isPaid) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-    } else {
-        MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
-    }
-    val iconColor = if (invoice.isPaid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+fun InvoiceCard(invoice: Invoice) {
+    val accentColor = if (invoice.isPaid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+    val statusBg = accentColor.copy(alpha = 0.12f)
+    val iconColor = accentColor
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -506,14 +486,28 @@ fun invoiceCardConstraint(invoice: Invoice) {
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(14.dp)
         ) {
-            val (iconContainer, detailText, subtitleText, statusBadge, amountText) = createRefs()
+            val (accentBar, iconContainer, detailText, subtitleText, statusBadge, amountText) = createRefs()
+
+            // Barra de acento lateral según estado de la factura
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(accentColor)
+                    .constrainAs(accentBar) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        height = Dimension.fillToConstraints
+                    }
+            )
 
             // Icono de documento/factura estilizado
             Box(
@@ -524,7 +518,7 @@ fun invoiceCardConstraint(invoice: Invoice) {
                     .constrainAs(iconContainer) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
+                        start.linkTo(accentBar.end, margin = 12.dp)
                     },
                 contentAlignment = Alignment.Center
             ) {
